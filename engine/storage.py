@@ -158,3 +158,5 @@ storage = Storage()
 if __name__ == '__main__':
     vault_id = storage.get_vault_id("Vault1")
     print(vault_id)
+    secret_id = storage.insert_secret(vault_name="Vault1", secret_name="Secret1", secret_data="blah blah")
+    print(vault_id)
