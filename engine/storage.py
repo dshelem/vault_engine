@@ -50,10 +50,12 @@ class Storage:
         """
         with DBConnection(self.db_file_name) as conn:
             cursor = conn.cursor()
-            cursor.execute("select Vault_ID from tblVaults where Vault_Name = ?;", (vault_name, ))
+            cursor.execute("select Vault_ID from tblVaults "
+                           "where Vault_Name = ?;", (vault_name, ))
             result = cursor.fetchone()
             if not result:
-                cursor.execute("insert into tblVaults (Vault_Name) values (?);", (vault_name, ))
+                cursor.execute("insert into tblVaults (Vault_Name) "
+                               "values (?);", (vault_name, ))
                 return cursor.lastrowid
             else:
                 return result[0]
@@ -69,16 +71,18 @@ class Storage:
         """
         with DBConnection(self.db_file_name) as conn:
             cursor = conn.cursor()
-            cursor.execute("select Secret_ID from tblSecrets where Secret_Name = ?;", (secret_name, ))
+            cursor.execute("select Secret_ID from tblSecrets where "
+                           "Secret_Name = ?;", (secret_name, ))
             result = cursor.fetchone()
             if not result:
-                raise DBConnection("There is no secret with name " + str(secret_name))
+                raise DBConnection("There is no secret with name "
+                                   + str(secret_name))
 
             return result[0]
 
     @log_it
-    def insert_secret(self, vault_name: str, secret_name: str, secret_data: str,
-                      secret_description: str = "") -> int:
+    def insert_secret(self, vault_name: str, secret_name: str,
+                      secret_data: str, secret_description: str = "") -> int:
         """
         Размещает секрет в сейфе. Возвращает ID вставленной записи.
         Кидает исключение StorageException если такой секрет существует
@@ -92,16 +96,20 @@ class Storage:
         vault_id = self.get_vault_id(vault_name=vault_name)
         with DBConnection(self.db_file_name) as conn:
             cursor = conn.cursor()
-            cursor.execute("select Secret_ID from tblSecrets where Vault_ID = ? and Secret_Name = ?;",
+            cursor.execute("select Secret_ID from tblSecrets where "
+                           "Vault_ID = ? and Secret_Name = ?;",
                            (vault_id, secret_name, ))
             result = cursor.fetchone()
             if result:
-                raise StorageException("Storage already has secret with name " + str(secret_name))
+                raise StorageException("Storage already has secret with name "
+                                       + str(secret_name))
             else:
                 cursor.execute("insert into tblSecrets "
-                               "(Secret_Name, Secret_Data, Secret_Description, Vault_ID) "
+                               "(Secret_Name, Secret_Data, "
+                               "Secret_Description, Vault_ID) "
                                "values (?, ?, ?, ?);",
-                               (secret_name, secret_data, secret_description, vault_id, ))
+                               (secret_name, secret_data, secret_description,
+                                vault_id, ))
             return cursor.lastrowid
 
     @log_it
@@ -118,7 +126,8 @@ class Storage:
             cursor = conn.cursor()
             if kwargs.get("vault_id", None) is None:
                 if kwargs.get("vault_name", None) is None:
-                    raise ValueError("Ommited one of the mandatory parameters: vault_id, vault_name")
+                    raise ValueError("Ommited one of the mandatory "
+                                     "parameters: vault_id, vault_name")
                 else:
                     vault_id = self.get_vault_id(kwargs["vault_name"])
             else:
@@ -138,8 +147,10 @@ class Storage:
         """
         with DBConnection(self.db_file_name) as conn:
             cursor = conn.cursor()
-            cursor.execute("select Secret_ID, Secret_Name, Secret_Description, Secret_Data, Vault_ID  "
-                           "from tblSecrets where Secret_ID = ?;", (secret_id, ))
+            cursor.execute("select Secret_ID, Secret_Name, "
+                           "Secret_Description, Secret_Data, Vault_ID "
+                           "from tblSecrets where Secret_ID = ?;",
+                           (secret_id, ))
             return cursor.fetchone()
 
 
@@ -148,8 +159,10 @@ storage = Storage()
 if __name__ == '__main__':
     vault_id = storage.get_vault_id("Vault1")
     print("vault_id = ", vault_id)
-    # storage.insert_secret(vault_name="Vault1", secret_name="Secret2", secret_data="blah blah")
-    # secret_id = storage.insert_secret(vault_name="Vault1", secret_name="Secret3", secret_data="blah blah")
+    # storage.insert_secret(vault_name="Vault1", secret_name="Secret2",
+    # secret_data="blah blah")
+    # secret_id = storage.insert_secret(vault_name="Vault1",
+    # secret_name="Secret3", secret_data="blah blah")
     rows = storage.get_secrets_list(vault_name="Vault1")
     print("rows = ", rows)
     print("secret = ", storage.get_secret(secret_id=3))

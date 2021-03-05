@@ -45,7 +45,8 @@ CREATE TABLE tblSecrets
  Secret_Data        blob NOT NULL,
  Vault_ID           integer NOT NULL,
  UNIQUE (Vault_ID, Secret_Name),
- FOREIGN KEY (Vault_ID) REFERENCES tblVaults (Vault_ID) ON DELETE RESTRICT ON UPDATE NO ACTION
+ FOREIGN KEY (Vault_ID) REFERENCES tblVaults (Vault_ID) 
+    ON DELETE RESTRICT ON UPDATE NO ACTION
 );
 
 CREATE INDEX index_secret_name

@@ -20,9 +20,8 @@ class DBConnection:
     @log_it
     def __enter__(self) -> sqlite3.Connection:
         """
-        "Магический" метод для открытия и возврата соединения с использованием оператора with
-        Пример:
-        with DB_Connection("db_name.db"):
+        "Магический" метод для открытия и возврата соединения с использованием
+        оператора with. Пример: with DB_Connection("db_name.db"):
             ...
         :return: объект sqlite3.Connection
         """
@@ -31,7 +30,8 @@ class DBConnection:
     @log_it
     def __exit__(self, exc_ty: Any, exc_val: Exception, exc_tb: Any) -> None:
         """
-        "Магический" метод для коммита и закрытия соединения при выходе из блока видимости оператора with
+        "Магический" метод для коммита и закрытия соединения при выходе из
+        блока видимости оператора with
         """
         self.connection.commit()
         self.connection.close()

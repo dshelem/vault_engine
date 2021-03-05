@@ -6,7 +6,6 @@
 import logging
 from functools import wraps
 from typing import Any, Tuple, Dict
-import os
 
 from engine.config import config
 
