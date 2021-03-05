@@ -2,6 +2,7 @@
 Модуль определения класса хранилища
 Автор Денис Шелемех, 2021
 """
+
 import sqlite3
 from typing import List
 
@@ -61,7 +62,7 @@ class Storage:
     def get_secret_id_from_secret_name(self, secret_name: str) -> int:
         """
         Возвращает ID секрета с именем secret_name
-        При его отсутствии кидает исключение StorageException
+        При его отсутствии в БД кидает исключение StorageException
 
         Аргументы
         secret_name - строка - имя секрета
@@ -80,14 +81,13 @@ class Storage:
                       secret_description: str = "") -> int:
         """
         Размещает секрет в сейфе. Возвращает ID вставленной записи.
+        Кидает исключение StorageException если такой секрет существует
 
         Аргументы
         vault_name - строка - имя сейфа
         secret_name - строка - имя секрета
         secret_data - строка - данные секрета
         secret_description - строка - описание секрета
-
-        Кидает исключение StorageException если такой секрет существует
         """
         vault_id = self.get_vault_id(vault_name=vault_name)
         with DBConnection(self.db_file_name) as conn:
@@ -129,25 +129,15 @@ class Storage:
             return cursor.fetchall()
 
     @log_it
-    def get_secret(self, **kwargs) -> sqlite3.Row:
+    def get_secret(self, secret_id: int) -> sqlite3.Row:
         """
         Возвращает строку - секрет
 
         Аргументы
-        secret_name - строка - имя сейфа
-        ИЛИ
         secret_id - целое - ID сейфа
         """
         with DBConnection(self.db_file_name) as conn:
             cursor = conn.cursor()
-            if kwargs.get("secret_id", None) is None:
-                if kwargs.get("secret_name", None) is None:
-                    raise ValueError("Ommited one of the mandatory parameters: secret_id, secret_name")
-                else:
-                    secret_id = self.get_secret_id_from_secret_name(kwargs["secret_name"])
-            else:
-                secret_id = kwargs["secret_id"]
-
             cursor.execute("select Secret_ID, Secret_Name, Secret_Description, Secret_Data, Vault_ID  "
                            "from tblSecrets where Secret_ID = ?;", (secret_id, ))
             return cursor.fetchone()
@@ -157,6 +147,9 @@ storage = Storage()
 
 if __name__ == '__main__':
     vault_id = storage.get_vault_id("Vault1")
-    print(vault_id)
-    secret_id = storage.insert_secret(vault_name="Vault1", secret_name="Secret1", secret_data="blah blah")
-    print(vault_id)
+    print("vault_id = ", vault_id)
+    # storage.insert_secret(vault_name="Vault1", secret_name="Secret2", secret_data="blah blah")
+    # secret_id = storage.insert_secret(vault_name="Vault1", secret_name="Secret3", secret_data="blah blah")
+    rows = storage.get_secrets_list(vault_name="Vault1")
+    print("rows = ", rows)
+    print("secret = ", storage.get_secret(secret_id=3))
