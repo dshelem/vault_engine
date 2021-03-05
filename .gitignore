@@ -1,0 +1,11 @@
+.idea/
+/__pycache__/
+/webface/__pycache__/
+/engine/__pycache__/
+/mo_env/
+/venv/
+/task/
+
+*.key
+*.flaskenv
+*.db
